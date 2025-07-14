@@ -29,9 +29,6 @@
     <button onclick="copyResult()">結果をコピー</button>
 
     <script>
-        // ショートカットからURLパラメータとして入力値を受け取る
-        // 例: https://<username>.github.io/<repo>/index.html?input=T10,8000,500000
-
         // URLパラメータから"input"の値を取得する関数
         function getUrlParameter(name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -41,10 +38,6 @@
         };
 
         const inputString = getUrlParameter('input'); // ショートカットからの入力
-
-        // ここに、これまでのJavaScript計算コードを全て貼り付けます
-        // ただし、'args.plainTexts[0]' の部分は 'inputString' に変更し、
-        // 'completion(result)' の部分は、結果をHTML要素に表示するように変更します。
 
         let resultText = "エラー：入力がありません。"; // 計算結果を格納する変数
 
@@ -69,12 +62,9 @@
             let tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
             let unitPt = tierTable[tier];
 
-            // --- エラー条件のチェックと結果設定 ---
             if (!unitPt) {
               resultText = "不正なティア指定です。T9, T10, T11, T12のいずれかを入力してください。";
-            } else { // ティアが正しい場合のみ、以下の計算に進む
-
-              // 報酬表：死亡Pt → WK加算Pt
+            } else {
               let rewardStages = [
                 [10000, 100], [20000, 150], [40000, 200], [100000, 250],
                 [200000, 300], [300000, 350], [400000, 400], [600000, 450],
@@ -85,7 +75,6 @@
               let extraReward = 200;
               let maxDeathPt = 100000000;
 
-              // 現在死亡Ptで得られる報酬pt
               let deathWK = 0;
               for (let [pt, reward] of rewardStages) {
                 if (currentDeathPt >= pt) deathWK += reward;
@@ -95,18 +84,13 @@
                 else break;
               }
 
-              // 死亡以外のWKpt（＝殲滅・占領分）
               let otherWK = currentWK - deathWK;
-
-              // 補うべきWKpt = 10,000 − それ以外のWKpt
               let goalWK = 10000;
               let neededWK = goalWK - otherWK;
 
               if (neededWK <= 0) {
                 resultText = "WK報酬はすでに目標に到達済みです！";
-              } else { // WK報酬が目標に未到達の場合のみ、以下の計算に進む
-
-                // 報酬表を累積して、必要死亡Ptラインを判定
+              } else {
                 let cumulativeReward = 0;
                 let targetDeathPt = null;
 
@@ -131,21 +115,17 @@
 
                 if (targetDeathPt === null) {
                   resultText = "報酬表の最大PtでもWKptに届きません。";
-                } else { // 目標到達Ptが判明した場合のみ、以下の計算に進む
-
-                  // 不足死亡Pt
+                } else {
                   let missingDeathPt = targetDeathPt - currentDeathPt;
 
                   if (missingDeathPt <= 0) {
                     resultText = "すでに目標の報酬到達Ptを超えています！";
-                  } else { // 不足死亡Ptがある場合のみ、最終計算に進む
-
-                    // 必要兵士数（切り上げ）
+                  } else {
                     let requiredUnits = Math.ceil(missingDeathPt / unitPt);
-
-                    // 改行付き出力（1行目コピー対応）
-                    resultText = `${requiredUnits}体 必要\n` +
-                                 `---` + `\n` + // 区切り線を追加
+                    
+                    // 「人」の前に半角スペースを追加
+                    resultText = `${requiredUnits} 人 必要\n` + // ★ここに半角スペースを追加
+                                 `---` + `\n` +
                                  `兵士ティア：${tier}\n` +
                                  `現在WKpt：${currentWK.toLocaleString()}pt\n` +
                                  `死亡Pt：${currentDeathPt.toLocaleString()}pt\n` +
@@ -162,7 +142,7 @@
         // 計算結果をHTML要素に表示
         document.getElementById('result').innerText = resultText;
 
-        // 結果をコピーする関数
+        // 結果をコピーする関数（Webページ上のボタン用）
         function copyResult() {
             const resultElement = document.getElementById('result');
             const textToCopy = resultElement.innerText;
