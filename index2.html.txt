@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WKpt計算機</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; text-align: center; }
+        #result {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+            white-space: pre-wrap; /* 改行を有効にする */
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WKpt計算結果</h1>
+    <div id="result">計算中...</div>
+    <button onclick="copyResult()">結果をコピー</button>
+
+    <script>
+        // ショートカットからURLパラメータとして入力値を受け取る
+        // 例: https://<username>.github.io/<repo>/index.html?input=T10,8000,500000
+
+        // URLパラメータから"input"の値を取得する関数
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+
+        const inputString = getUrlParameter('input'); // ショートカットからの入力
+
+        // ここに、これまでのJavaScript計算コードを全て貼り付けます
+        // ただし、'args.plainTexts[0]' の部分は 'inputString' に変更し、
+        // 'completion(result)' の部分は、結果をHTML要素に表示するように変更します。
+
+        let resultText = "エラー：入力がありません。"; // 計算結果を格納する変数
+
+        if (inputString) {
+            // 全角数字→半角数字に変換する関数
+            function normalizeDigits(str) {
+              return str.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+            }
+
+            let parts = inputString.split(','); // カンマで分割
+
+            // 分割した文字列から値を取得
+            let tierRaw = normalizeDigits(parts[0] || "");
+            let currentWKRaw = normalizeDigits(parts[1] || "0");
+            let currentDeathPtRaw = normalizeDigits(parts[2] || "0");
+
+            let tier = tierRaw;
+            let currentWK = parseInt(currentWKRaw);
+            let currentDeathPt = parseInt(currentDeathPtRaw);
+
+            // ティアごとの兵士死亡Pt
+            let tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
+            let unitPt = tierTable[tier];
+
+            // --- エラー条件のチェックと結果設定 ---
+            if (!unitPt) {
+              resultText = "不正なティア指定です。T9, T10, T11, T12のいずれかを入力してください。";
+            } else { // ティアが正しい場合のみ、以下の計算に進む
+
+              // 報酬表：死亡Pt → WK加算Pt
+              let rewardStages = [
+                [10000, 100], [20000, 150], [40000, 200], [100000, 250],
+                [200000, 300], [300000, 350], [400000, 400], [600000, 450],
+                [800000, 500], [1000000, 600], [1500000, 200]
+              ];
+              let extraStart = 2000000;
+              let extraStep = 500000;
+              let extraReward = 200;
+              let maxDeathPt = 100000000;
+
+              // 現在死亡Ptで得られる報酬pt
+              let deathWK = 0;
+              for (let [pt, reward] of rewardStages) {
+                if (currentDeathPt >= pt) deathWK += reward;
+              }
+              for (let pt = extraStart; pt <= maxDeathPt; pt += extraStep) {
+                if (currentDeathPt >= pt) deathWK += extraReward;
+                else break;
+              }
+
+              // 死亡以外のWKpt（＝殲滅・占領分）
+              let otherWK = currentWK - deathWK;
+
+              // 補うべきWKpt = 10,000 − それ以外のWKpt
+              let goalWK = 10000;
+              let neededWK = goalWK - otherWK;
+
+              if (neededWK <= 0) {
+                resultText = "WK報酬はすでに目標に到達済みです！";
+              } else { // WK報酬が目標に未到達の場合のみ、以下の計算に進む
+
+                // 報酬表を累積して、必要死亡Ptラインを判定
+                let cumulativeReward = 0;
+                let targetDeathPt = null;
+
+                for (let [pt, reward] of rewardStages) {
+                  cumulativeReward += reward;
+                  if (cumulativeReward >= neededWK) {
+                    targetDeathPt = pt;
+                    break;
+                  }
+                }
+                if (targetDeathPt === null) {
+                  let currentPt = rewardStages[rewardStages.length - 1][0];
+                  for (let pt = extraStart; pt <= maxDeathPt; pt += extraStep) {
+                    cumulativeReward += extraReward;
+                    currentPt += extraStep;
+                    if (cumulativeReward >= neededWK) {
+                      targetDeathPt = currentPt;
+                      break;
+                    }
+                  }
+                }
+
+                if (targetDeathPt === null) {
+                  resultText = "報酬表の最大PtでもWKptに届きません。";
+                } else { // 目標到達Ptが判明した場合のみ、以下の計算に進む
+
+                  // 不足死亡Pt
+                  let missingDeathPt = targetDeathPt - currentDeathPt;
+
+                  if (missingDeathPt <= 0) {
+                    resultText = "すでに目標の報酬到達Ptを超えています！";
+                  } else { // 不足死亡Ptがある場合のみ、最終計算に進む
+
+                    // 必要兵士数（切り上げ）
+                    let requiredUnits = Math.ceil(missingDeathPt / unitPt);
+
+                    // 改行付き出力（1行目コピー対応）
+                    resultText = `${requiredUnits}体 必要\n` +
+                                 `---` + `\n` + // 区切り線を追加
+                                 `兵士ティア：${tier}\n` +
+                                 `現在WKpt：${currentWK.toLocaleString()}pt\n` +
+                                 `死亡Pt：${currentDeathPt.toLocaleString()}pt\n` +
+                                 `死亡Pt報酬：${deathWK.toLocaleString()}pt\n` +
+                                 `補うWKpt：${neededWK.toLocaleString()}pt\n` +
+                                 `目標到達死亡Pt：${targetDeathPt.toLocaleString()}pt\n` +
+                                 `不足死亡Pt：${missingDeathPt.toLocaleString()}pt`;
+                  }
+                }
+              }
+            }
+        }
+
+        // 計算結果をHTML要素に表示
+        document.getElementById('result').innerText = resultText;
+
+        // 結果をコピーする関数
+        function copyResult() {
+            const resultElement = document.getElementById('result');
+            const textToCopy = resultElement.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('結果がクリップボードにコピーされました！');
+            }).catch(err => {
+                console.error('コピー失敗:', err);
+                alert('コピーに失敗しました。手動でコピーしてください。');
+            });
+        }
+    </script>
+</body>
+</html>
