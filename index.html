@@ -5,65 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WKpt計算機</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; text-align: center; }
+        body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f4f4f4; color: #333; }
+        h1 { color: #0056b3; }
+        .input-group { margin-bottom: 15px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input, .input-group select {
+            width: calc(100% - 22px); /* Padding and border adjustment */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; /* paddingをwidthに含める */
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
         #result {
             font-size: 1.2em;
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 25px;
             white-space: pre-wrap; /* 改行を有効にする */
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            min-height: 100px; /* 最低限の高さ確保 */
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
+        #copyButton {
+            background-color: #28a745; /* Green for copy */
+        }
+        #copyButton:hover {
+            background-color: #218838;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
             margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>WKpt計算結果</h1>
-    <div id="result">計算中...</div>
-    <button onclick="copyResult()">結果をコピー</button>
+    <h1>WKpt計算ツール</h1>
+
+    <div class="input-group">
+        <label for="tierSelect">兵士ティア:</label>
+        <select id="tierSelect">
+            <option value="T9">T9</option>
+            <option value="T10" selected>T10</option> <option value="T11">T11</option>
+            <option value="T12">T12</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label for="currentWKInput">現在のWKpt (0以上の整数):</label>
+        <input type="number" id="currentWKInput" value="0" min="0" step="1" pattern="[0-9]*" inputmode="numeric">
+    </div>
+    <div class="input-group">
+        <label for="currentDeathPtInput">現在の兵士死亡Pt (0以上の整数):</label>
+        <input type="number" id="currentDeathPtInput" value="0" min="0" step="1" pattern="[0-9]*" inputmode="numeric">
+    </div>
+
+    <button onclick="calculateWKpt()">計算する</button>
+
+    <div id="result">各項目を入力して「計算する」ボタンを押してください。</div>
+    <button onclick="copyResult()" style="display: none;" id="copyButton">結果をコピー</button>
+
 
     <script>
-        // URLパラメータから"input"の値を取得する関数
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        };
+        // 計算ボタンが押されたときに実行される関数
+        function calculateWKpt() {
+            // エラーメッセージをクリア
+            document.getElementById('result').classList.remove('error-message');
 
-        const inputString = getUrlParameter('input'); // ショートカットからの入力
+            // 入力フォームから値を取得
+            let tier = document.getElementById('tierSelect').value;
+            let currentWKStr = document.getElementById('currentWKInput').value;
+            let currentDeathPtStr = document.getElementById('currentDeathPtInput').value;
 
-        let resultText = "エラー：入力がありません。"; // 計算結果を格納する変数
+            let resultText = ""; // 計算結果を格納する変数
 
-        if (inputString) {
-            // 全角数字→半角数字に変換する関数
-            function normalizeDigits(str) {
-              return str.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+            // ★入力値の厳密な検証
+            // parseIntは非数字を0にする可能性があるため、isNaNとNumber.isIntegerで厳密にチェック
+            let currentWK = parseInt(currentWKStr);
+            let currentDeathPt = parseInt(currentDeathPtStr);
+
+            if (currentWKStr === "" || currentDeathPtStr === "" || // 空欄チェック
+                isNaN(currentWK) || !Number.isInteger(currentWK) || currentWK < 0 || // WKptが0以上の整数か
+                isNaN(currentDeathPt) || !Number.isInteger(currentDeathPt) || currentDeathPt < 0) { // 死亡Ptが0以上の整数か
+                
+                resultText = "WKptと兵士死亡Ptは、0以上の整数を正しく入力してください。";
+                document.getElementById('result').innerText = resultText;
+                document.getElementById('result').classList.add('error-message'); // エラー表示
+                document.getElementById('copyButton').style.display = 'none'; // エラー時はコピーボタン非表示
+                return; // 以降の計算を行わない
             }
 
-            let parts = inputString.split(','); // カンマで分割
-
-            // 分割した文字列から値を取得
-            let tierRaw = normalizeDigits(parts[0] || "");
-            let currentWKRaw = normalizeDigits(parts[1] || "0");
-            let currentDeathPtRaw = normalizeDigits(parts[2] || "0");
-
-            let tier = tierRaw;
-            let currentWK = parseInt(currentWKRaw);
-            let currentDeathPt = parseInt(currentDeathPtRaw);
 
             // ティアごとの兵士死亡Pt
             let tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
             let unitPt = tierTable[tier];
 
             if (!unitPt) {
-              resultText = "不正なティア指定です。T9, T10, T11, T12のいずれかを入力してください。";
+              resultText = "不正なティア指定です。T9, T10, T11, T12のいずれかを選択してください。";
             } else {
               let rewardStages = [
                 [10000, 100], [20000, 150], [40000, 200], [100000, 250],
@@ -123,8 +181,7 @@
                   } else {
                     let requiredUnits = Math.ceil(missingDeathPt / unitPt);
                     
-                    // 「人」の前に半角スペースを追加
-                    resultText = `${requiredUnits} 人 必要\n` + // ★ここに半角スペースを追加
+                    resultText = `${requiredUnits} 人 必要\n` +
                                  `---` + `\n` +
                                  `兵士ティア：${tier}\n` +
                                  `現在WKpt：${currentWK.toLocaleString()}pt\n` +
@@ -137,12 +194,14 @@
                 }
               }
             }
+            // 計算結果をHTML要素に表示
+            document.getElementById('result').innerText = resultText;
+            // 結果が表示されたらコピーボタンを表示
+            document.getElementById('copyButton').style.display = 'block';
+            document.getElementById('result').classList.remove('error-message'); // エラークラスがあれば削除
         }
 
-        // 計算結果をHTML要素に表示
-        document.getElementById('result').innerText = resultText;
-
-        // 結果をコピーする関数（Webページ上のボタン用）
+        // 結果をコピーする関数
         function copyResult() {
             const resultElement = document.getElementById('result');
             const textToCopy = resultElement.innerText;
@@ -153,6 +212,27 @@
                 alert('コピーに失敗しました。手動でコピーしてください。');
             });
         }
+        
+        // ページロード時にURLパラメータがあれば計算を実行（iPhoneショートカットからの呼び出し用）
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlInputString = urlParams.get('input'); // 'input'パラメータを取得
+            
+            if (urlInputString) {
+                // URLパラメータから取得した値をフォームに設定
+                let parts = urlInputString.split(',');
+                document.getElementById('tierSelect').value = parts[0] || "T10";
+                document.getElementById('currentWKInput').value = parts[1] || "0";
+                document.getElementById('currentDeathPtInput').value = parts[2] || "0";
+                
+                calculateWKpt(); // 自動で計算実行
+            } else {
+                // パラメータがなければ初期メッセージ表示
+                 document.getElementById('result').innerText = "各項目を入力して「計算する」ボタンを押してください。";
+                 document.getElementById('copyButton').style.display = 'none'; // 初期状態ではコピーボタンを非表示
+            }
+        };
+
     </script>
 </body>
 </html>
