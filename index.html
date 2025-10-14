@@ -203,15 +203,24 @@
 
         // 結果をコピーする関数
         function copyResult() {
-            const resultElement = document.getElementById('result');
-            const textToCopy = resultElement.innerText;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('結果がクリップボードにコピーされました！');
-            }).catch(err => {
-                console.error('コピー失敗:', err);
-                alert('コピーに失敗しました。手動でコピーしてください。');
-            });
-        }
+    const resultElement = document.getElementById('result');
+    const resultText = resultElement.innerText;
+
+    // 「○人必要」の行を抽出して数字だけ取り出す
+    const match = resultText.match(/^(\d+)\s*人\s*必要/m);
+    if (match && match[1]) {
+        const numberToCopy = match[1];
+        navigator.clipboard.writeText(numberToCopy).then(() => {
+            alert(`「${numberToCopy}人」がクリップボードにコピーされました！`);
+        }).catch(err => {
+            console.error('コピー失敗:', err);
+            alert('コピーに失敗しました。手動でコピーしてください。');
+        });
+    } else {
+        alert('コピー対象の人数が見つかりませんでした。');
+    }
+}
+
         
         // ページロード時にURLパラメータがあれば計算を実行（iPhoneショートカットからの呼び出し用）
         window.onload = function() {
