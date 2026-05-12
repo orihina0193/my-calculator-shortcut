@@ -3,245 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WKpt計算機</title>
+    <title>WK Tactics Console</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; text-align: center; background-color: #f4f4f4; color: #333; }
-        h1 { color: #0056b3; }
-        .input-group { margin-bottom: 15px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --text-color: #c9d1d9;
+            --border-color: #30363d;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; }
+        h1 { color: var(--accent-blue); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(88, 166, 255, 0.3); }
+        .console-panel { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; width: 100%; max-width: 420px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); box-sizing: border-box; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: #8b949e; font-weight: bold; }
         .input-group input, .input-group select {
-            width: calc(100% - 22px); /* Padding and border adjustment */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-            box-sizing: border-box; /* paddingをwidthに含める */
+            width: 100%; padding: 12px; background: #0d1117; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.2s;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
+        .input-group input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2); }
+        .mode-switch { display: flex; gap: 10px; margin-bottom: 20px; background: #0d1117; padding: 4px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .mode-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; background: transparent; color: #8b949e; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: all 0.2s; }
+        .mode-btn.active { background: var(--accent-blue); color: #fff; }
+        button#calcAction {
+            width: 100%; background: linear-gradient(135deg, #2188ff 0%, #005cc5 100%); color: white; padding: 14px; font-size: 1rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         #result {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 25px;
-            white-space: pre-wrap; /* 改行を有効にする */
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 8px;
-            min-height: 100px; /* 最低限の高さ確保 */
-            text-align: left;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-top: 20px; padding: 15px; background: #0d1117; border: 1px dashed var(--border-color); border-radius: 8px; font-family: monospace; font-size: 0.9rem; line-height: 1.6; text-align: left; position: relative;
         }
-        #copyButton {
-            background-color: #28a745; /* Green for copy */
+        .res-highlight { color: var(--accent-green); font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--accent-green); margin-bottom: 10px; display: inline-block; }
+        button#copyButton {
+            width: 100%; background: #238636; color: white; padding: 10px; font-size: 0.9rem; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold;
         }
-        #copyButton:hover {
-            background-color: #218838;
-        }
-        .error-message {
-            color: red;
-            font-weight: bold;
-            margin-top: 10px;
-        }
+        .hint { font-size: 0.7rem; color: #8b949e; margin-top: 4px; }
     </style>
 </head>
 <body>
-    <h1>WKpt計算ツール</h1>
+    <h1>WK Tactics Console</h1>
 
-    <div class="input-group">
-        <label for="tierSelect">兵士ティア:</label>
-        <select id="tierSelect">
-            <option value="T9">T9</option>
-            <option value="T10" selected>T10</option> <option value="T11">T11</option>
-            <option value="T12">T12</option>
-        </select>
+    <div class="console-panel">
+        <div class="mode-switch">
+            <button class="mode-btn active" id="modeWK" onclick="setMode('WK')">WK報酬(1万)</button>
+            <button class="mode-btn" id="modeBuff" onclick="setMode('Buff')">希望バフ基準</button>
+        </div>
+
+        <div class="input-group">
+            <label>兵士ティア</label>
+            <select id="tierSelect">
+                <option value="T9">T9</option>
+                <option value="T10" selected>T10</option>
+                <option value="T11">T11</option>
+                <option value="T12">T12</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>現在WKpt</label>
+            <input type="number" id="currentWKInput" value="0" inputmode="numeric">
+        </div>
+
+        <div class="input-group">
+            <label>現在死亡Pt</label>
+            <input type="number" id="currentDeathPtInput" value="0" inputmode="numeric">
+        </div>
+
+        <div id="buffInputArea" class="input-group" style="display: none;">
+            <label>希望バフ (万単位)</label>
+            <input type="number" id="desiredBuffInput" placeholder="例: 2500" inputmode="numeric">
+            <p class="hint">2500と入力すると2,500万バフとして計算します</p>
+        </div>
+
+        <button id="calcAction" onclick="calculate()">ANALYSIS START</button>
+
+        <div id="result">Waiting for input...</div>
+        <button id="copyButton" onclick="copyResult()" style="display: none;">必要人数をコピー</button>
     </div>
-    <div class="input-group">
-        <label for="currentWKInput">現在のWKpt :</label>
-        <input type="number" id="currentWKInput" value="0" min="0" step="1" pattern="[0-9]*" inputmode="numeric">
-    </div>
-    <div class="input-group">
-        <label for="currentDeathPtInput">現在の兵士死亡pt :</label>
-        <input type="number" id="currentDeathPtInput" value="0" min="0" step="1" pattern="[0-9]*" inputmode="numeric">
-    </div>
-
-    <button onclick="calculateWKpt()">計算する</button>
-
-    <div id="result">各項目を入力して「計算する」ボタンを押してください。</div>
-    <button onclick="copyResult()" style="display: none;" id="copyButton">結果をコピー</button>
-
 
     <script>
-        // 計算ボタンが押されたときに実行される関数
-        function calculateWKpt() {
-            // エラーメッセージをクリア
-            document.getElementById('result').classList.remove('error-message');
+        let currentMode = 'WK';
+        const tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
+        const rewardStages = [[10000, 100], [20000, 150], [40000, 200], [100000, 250], [200000, 300], [300000, 350], [400000, 400], [600000, 450], [800000, 500], [1000000, 600], [1500000, 200]];
 
-            // 入力フォームから値を取得
-            let tier = document.getElementById('tierSelect').value;
-            let currentWKStr = document.getElementById('currentWKInput').value;
-            let currentDeathPtStr = document.getElementById('currentDeathPtInput').value;
-
-            let resultText = ""; // 計算結果を格納する変数
-
-            // ★入力値の厳密な検証
-            // parseIntは非数字を0にする可能性があるため、isNaNとNumber.isIntegerで厳密にチェック
-            let currentWK = parseInt(currentWKStr);
-            let currentDeathPt = parseInt(currentDeathPtStr);
-
-            if (currentWKStr === "" || currentDeathPtStr === "" || // 空欄チェック
-                isNaN(currentWK) || !Number.isInteger(currentWK) || currentWK < 0 || // WKptが0以上の整数か
-                isNaN(currentDeathPt) || !Number.isInteger(currentDeathPt) || currentDeathPt < 0) { // 死亡Ptが0以上の整数か
-                
-                resultText = "WKptと兵士死亡Ptは、0以上の整数を正しく入力してください。";
-                document.getElementById('result').innerText = resultText;
-                document.getElementById('result').classList.add('error-message'); // エラー表示
-                document.getElementById('copyButton').style.display = 'none'; // エラー時はコピーボタン非表示
-                return; // 以降の計算を行わない
-            }
-
-
-            // ティアごとの兵士死亡Pt
-            let tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
-            let unitPt = tierTable[tier];
-
-            if (!unitPt) {
-              resultText = "不正なティア指定です。T9, T10, T11, T12のいずれかを選択してください。";
-            } else {
-              let rewardStages = [
-                [10000, 100], [20000, 150], [40000, 200], [100000, 250],
-                [200000, 300], [300000, 350], [400000, 400], [600000, 450],
-                [800000, 500], [1000000, 600], [1500000, 200]
-              ];
-              let extraStart = 2000000;
-              let extraStep = 500000;
-              let extraReward = 200;
-              let maxDeathPt = 100000000;
-
-              let deathWK = 0;
-              for (let [pt, reward] of rewardStages) {
-                if (currentDeathPt >= pt) deathWK += reward;
-              }
-              for (let pt = extraStart; pt <= maxDeathPt; pt += extraStep) {
-                if (currentDeathPt >= pt) deathWK += extraReward;
-                else break;
-              }
-
-              let otherWK = currentWK - deathWK;
-              let goalWK = 10000;
-              let neededWK = goalWK - otherWK;
-
-              if (neededWK <= 0) {
-                resultText = "WK報酬はすでに目標に到達済みです！";
-              } else {
-                let cumulativeReward = 0;
-                let targetDeathPt = null;
-
-                for (let [pt, reward] of rewardStages) {
-                  cumulativeReward += reward;
-                  if (cumulativeReward >= neededWK) {
-                    targetDeathPt = pt;
-                    break;
-                  }
-                }
-                if (targetDeathPt === null) {
-                  let currentPt = rewardStages[rewardStages.length - 1][0];
-                  for (let pt = extraStart; pt <= maxDeathPt; pt += extraStep) {
-                    cumulativeReward += extraReward;
-                    currentPt += extraStep;
-                    if (cumulativeReward >= neededWK) {
-                      targetDeathPt = currentPt;
-                      break;
-                    }
-                  }
-                }
-
-                if (targetDeathPt === null) {
-                  resultText = "報酬表の最大PtでもWKptに届きません。";
-                } else {
-                  let missingDeathPt = targetDeathPt - currentDeathPt;
-
-                  if (missingDeathPt <= 0) {
-                    resultText = "すでに目標の報酬到達Ptを超えています！";
-                  } else {
-                    let requiredUnits = Math.ceil(missingDeathPt / unitPt);
-                    
-                    resultText = `${requiredUnits} 人 必要\n` +
-                                 `---` + `\n` +
-                                 `兵士ティア：${tier}\n` +
-                                 `現在WKpt：${currentWK.toLocaleString()}pt\n` +
-                                 `死亡Pt：${currentDeathPt.toLocaleString()}pt\n` +
-                                 `死亡Pt報酬：${deathWK.toLocaleString()}pt\n` +
-                                 `補うWKpt：${neededWK.toLocaleString()}pt\n` +
-                                 `目標到達死亡Pt：${targetDeathPt.toLocaleString()}pt\n` +
-                                 `不足死亡Pt：${missingDeathPt.toLocaleString()}pt`;
-                  }
-                }
-              }
-            }
-            // 計算結果をHTML要素に表示
-            document.getElementById('result').innerText = resultText;
-            // 結果が表示されたらコピーボタンを表示
-            document.getElementById('copyButton').style.display = 'block';
-            document.getElementById('result').classList.remove('error-message'); // エラークラスがあれば削除
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeWK').classList.toggle('active', mode === 'WK');
+            document.getElementById('modeBuff').classList.toggle('active', mode === 'Buff');
+            document.getElementById('buffInputArea').style.display = mode === 'Buff' ? 'block' : 'none';
         }
 
-        // 結果をコピーする関数
-        function copyResult() {
-    const resultElement = document.getElementById('result');
-    const resultText = resultElement.innerText;
+        function calculate() {
+            const tier = document.getElementById('tierSelect').value;
+            const currentWK = parseInt(document.getElementById('currentWKInput').value) || 0;
+            const currentDeathPt = parseInt(document.getElementById('currentDeathPtInput').value) || 0;
+            const unitPt = tierTable[tier];
 
-    // 「○人必要」の行を抽出して数字だけ取り出す
-    const match = resultText.match(/^(\d+)\s*人\s*必要/m);
-    if (match && match[1]) {
-        const numberToCopy = match[1];
-        navigator.clipboard.writeText(numberToCopy).then(() => {
-            alert(`「${numberToCopy}人」がクリップボードにコピーされました！`);
-        }).catch(err => {
-            console.error('コピー失敗:', err);
-            alert('コピーに失敗しました。手動でコピーしてください。');
-        });
-    } else {
-        alert('コピー対象の人数が見つかりませんでした。');
-    }
-}
-
-        
-        // ページロード時にURLパラメータがあれば計算を実行（iPhoneショートカットからの呼び出し用）
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlInputString = urlParams.get('input'); // 'input'パラメータを取得
-            
-            if (urlInputString) {
-                // URLパラメータから取得した値をフォームに設定
-                let parts = urlInputString.split(',');
-                document.getElementById('tierSelect').value = parts[0] || "T10";
-                document.getElementById('currentWKInput').value = parts[1] || "0";
-                document.getElementById('currentDeathPtInput').value = parts[2] || "0";
-                
-                calculateWKpt(); // 自動で計算実行
-            } else {
-                // パラメータがなければ初期メッセージ表示
-                 document.getElementById('result').innerText = "各項目を入力して「計算する」ボタンを押してください。";
-                 document.getElementById('copyButton').style.display = 'none'; // 初期状態ではコピーボタンを非表示
+            // 現在の死亡報酬WKpt計算
+            let deathWK = 0;
+            rewardStages.forEach(([pt, rw]) => { if (currentDeathPt >= pt) deathWK += rw; });
+            for (let p = 2000000; p <= 100000000; p += 500000) {
+                if (currentDeathPt >= p) deathWK += 200; else break;
             }
-        };
+            const otherWK = currentWK - deathWK;
 
+            let resultHtml = "";
+            let copyVal = "";
+
+            if (currentMode === 'Buff') {
+                const buffVal = (parseInt(document.getElementById('desiredBuffInput').value) || 0) * 10000;
+                const reqDeathPt = Math.ceil(buffVal / 1.2);
+                const missingPt = Math.max(0, reqDeathPt - currentDeathPt);
+                const units = Math.ceil(missingPt / unitPt);
+                
+                resultHtml = `<div class="res-highlight">${units.toLocaleString()} 人 必要</div><br>` +
+                             `希望バフ: ${buffVal.toLocaleString()}<br>` +
+                             `必要死亡Pt: ${reqDeathPt.toLocaleString()}<br>` +
+                             `不足死亡Pt: ${missingPt.toLocaleString()}`;
+                copyVal = units;
+            } else {
+                let neededWK = 10000 - otherWK;
+                let cumulative = 0, targetPt = null;
+                // 簡易ロジック
+                for (let [pt, rw] of rewardStages) {
+                    cumulative += rw;
+                    if (cumulative >= neededWK) { targetPt = pt; break; }
+                }
+                if (!targetPt) {
+                    let curPt = 1500000;
+                    for (let p = 2000000; p <= 100000000; p += 500000) {
+                        cumulative += 200; curPt = p;
+                        if (cumulative >= neededWK) { targetPt = curPt; break; }
+                    }
+                }
+                const missingPt = Math.max(0, targetPt - currentDeathPt);
+                const units = Math.ceil(missingPt / unitPt);
+                resultHtml = `<div class="res-highlight">${units.toLocaleString()} 人 必要</div><br>` +
+                             `目標WKpt: 10,000<br>` +
+                             `補うWKpt: ${neededWK.toLocaleString()}<br>` +
+                             `獲得バフ: ${Math.floor(targetPt * 1.2).toLocaleString()}`;
+                copyVal = units;
+            }
+
+            document.getElementById('result').innerHTML = resultHtml;
+            document.getElementById('copyButton').style.display = 'block';
+            document.getElementById('copyButton').dataset.val = copyVal;
+        }
+
+        function copyResult() {
+            const val = document.getElementById('copyButton').dataset.val;
+            navigator.clipboard.writeText(val).then(() => alert('コピー完了: ' + val));
+        }
     </script>
 </body>
 </html>
