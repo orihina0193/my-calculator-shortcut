@@ -84,6 +84,23 @@
         const tierTable = { "T9": 45, "T10": 60, "T11": 80, "T12": 100 };
         const rewardStages = [[10000, 100], [20000, 150], [40000, 200], [100000, 250], [200000, 300], [300000, 350], [400000, 400], [600000, 450], [800000, 500], [1000000, 600], [1500000, 200]];
 
+        // --- 追加機能: ショートカットからの自動入力を処理 ---
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const wk = params.get('wk');
+            const death = params.get('death');
+            const tier = params.get('tier');
+
+            if (wk) document.getElementById('currentWKInput').value = wk;
+            if (death) document.getElementById('currentDeathPtInput').value = death;
+            if (tier) document.getElementById('tierSelect').value = tier.toUpperCase();
+
+            // 値が渡されていたら自動で計算を実行
+            if (wk || death) {
+                calculate();
+            }
+        };
+
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('modeWK').classList.toggle('active', mode === 'WK');
@@ -97,7 +114,6 @@
             const currentDeathPt = parseInt(document.getElementById('currentDeathPtInput').value) || 0;
             const unitPt = tierTable[tier];
 
-            // 現在の死亡報酬WKpt計算
             let deathWK = 0;
             rewardStages.forEach(([pt, rw]) => { if (currentDeathPt >= pt) deathWK += rw; });
             for (let p = 2000000; p <= 100000000; p += 500000) {
@@ -122,7 +138,6 @@
             } else {
                 let neededWK = 10000 - otherWK;
                 let cumulative = 0, targetPt = null;
-                // 簡易ロジック
                 for (let [pt, rw] of rewardStages) {
                     cumulative += rw;
                     if (cumulative >= neededWK) { targetPt = pt; break; }
@@ -139,7 +154,7 @@
                 resultHtml = `<div class="res-highlight">${units.toLocaleString()} 人 必要</div><br>` +
                              `目標WKpt: 10,000<br>` +
                              `補うWKpt: ${neededWK.toLocaleString()}<br>` +
-                             `獲得バフ: ${Math.floor(targetPt * 1.2).toLocaleString()}`;
+                             `獲得バフ: ${Math.floor((targetPt || 0) * 1.2).toLocaleString()}`;
                 copyVal = units;
             }
 
@@ -150,7 +165,12 @@
 
         function copyResult() {
             const val = document.getElementById('copyButton').dataset.val;
-            navigator.clipboard.writeText(val).then(() => alert('コピー完了: ' + val));
+            navigator.clipboard.writeText(val).then(() => {
+                const btn = document.getElementById('copyButton');
+                const originalText = btn.innerText;
+                btn.innerText = "コピー完了！";
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
         }
     </script>
 </body>
