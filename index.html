@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WK Tactics Console | 戦力・バフ・突撃シミュレーター</title>
   
+  <!-- Prevent cdn.tailwindcss.com from showing production utility warning in console -->
+  <script>
+    (function() {
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) {
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+    })();
+  </script>
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -72,10 +85,10 @@
     
     <!-- Header Block -->
     <header class="mb-6 text-center max-w-lg w-full relative">
-      <div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10" />
+      <div class="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full -z-10"></div>
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-950/40 border border-blue-800/50 rounded-full text-xs text-blue-400 font-mono mb-3 uppercase tracking-widest">
-        <svg class="w-3.5 h-3.5 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <svg class="w-3.5 h-3.5 text-blue-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         WK Assault Simulation Command
       </div>
@@ -91,7 +104,7 @@
       
       <!-- Input Panel -->
       <div class="bg-[#121826] border border-[#212c42] rounded-2xl p-5 sm:p-6 glow-panel relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500/30 via-cyan-400 to-blue-500/30" />
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500/30 via-cyan-400 to-blue-500/30"></div>
         
         <!-- Top Segmented Tabs -->
         <div class="flex p-1 bg-[#0b0f19] rounded-xl border border-[#212c42] mb-6">
@@ -125,14 +138,14 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <div id="aftershock-icon-bg" class="p-2 rounded-lg bg-sky-500/10 text-sky-400">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
                 <div>
                   <div class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
                     アフターショック効果
-                    <span id="aftershock-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span id="aftershock-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   </div>
                   <p id="aftershock-status-desc" class="text-[10px] text-gray-400 font-mono">
                     死亡の20%が深部治療室へ（死亡率 24.0% / 治療室 76.0%）
@@ -210,8 +223,8 @@
                   <label for="currentWK" class="block text-xs font-bold tracking-wider text-gray-400 font-mono">
                     現在WKpt
                   </label>
-                  <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                  <svg class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
                   </svg>
                 </div>
                 <input
@@ -229,8 +242,8 @@
                   <label for="currentDeath" class="block text-xs font-bold tracking-wider text-gray-400 font-mono">
                     現在死亡Pt
                   </label>
-                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <input
@@ -265,8 +278,8 @@
                   <label for="currentDeathBuffMode" class="block text-xs font-bold tracking-wider text-gray-400 font-mono">
                     現在死亡Pt
                   </label>
-                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg class="w-3.5 h-3.5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <input
@@ -300,8 +313,8 @@
 
           <!-- Tactical Guideline Box (Power Mode Only) -->
           <div id="power-tactical-guideline" class="p-3 bg-blue-950/20 border border-blue-900/50 rounded-xl flex items-start gap-2 overflow-hidden hidden">
-            <svg class="w-4 h-4 text-sky-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg class="w-4 h-4 text-sky-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div class="text-[11px] text-gray-300 leading-normal space-y-1.5 w-full">
               <div>
@@ -309,7 +322,7 @@
                 砲台等に攻撃（出撃全員が全滅）した兵士は、基本設定として<strong>70%が深部治療室に行き（治療後に復活）</strong>、<strong>30%が完全に死亡（消失）</strong>します。
               </div>
               <div>
-                アフターショックが有効な場合、その30%の完全死亡のうち<strong id="desc-shock-rate">20%が救済されて深部治療室へ回る</strong>ため、実質的な完全死亡（消失）は<strong id="desc-real-death">24.0%</strong>となり、深部治療室送りは<strong id="desc-real-hospital font-bold">76.0%</strong>になります。
+                アフターショックが有効な場合、その30%の完全死亡のうち<strong id="desc-shock-rate">20%が救済されて深部治療室へ回る</strong>ため、実質的な完全死亡（消失）は<strong id="desc-real-death">24.0%</strong>となり、深部治療室送りは<strong id="desc-real-hospital" class="font-bold">76.0%</strong>になります。
               </div>
               <div class="pt-1.5 border-t border-sky-950/40 text-sky-300 font-mono text-[10px] w-full">
                 【損失補填 of 計算式】<br />
@@ -329,8 +342,8 @@
               id="calculate-btn"
               class="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 px-4 rounded-xl text-xs sm:text-sm tracking-widest transition-all duration-200 active:scale-95 cursor-pointer shadow-lg shadow-blue-500/15 flex items-center justify-center gap-2"
             >
-              <svg class="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              <svg class="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               再計算する
             </button>
@@ -341,8 +354,8 @@
               class="px-4 py-3 bg-[#0b0f19] hover:bg-white/5 border border-[#212c42] text-gray-400 hover:text-white rounded-xl transition-all duration-200 cursor-pointer"
               title="フィールドをクリア"
             >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 4.89M9 11l3-3m0 0l3 3m-3-3v8" />
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 4.89M9 11l3-3m0 0l3 3m-3-3v8" />
               </svg>
             </button>
           </div>
@@ -353,7 +366,7 @@
       <!-- Results Console Terminal -->
       <div id="results-terminal" class="mt-6 space-y-4 fade-enter">
         <div class="bg-[#121826] border border-[#212c42] rounded-2xl p-5 sm:p-6 glow-panel relative overflow-hidden">
-          <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/30 via-emerald-400 to-emerald-500/30" />
+          <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/30 via-emerald-400 to-emerald-500/30"></div>
           
           <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2">
@@ -372,8 +385,8 @@
               id="copy-btn"
               class="px-2.5 py-1.5 bg-[#0b0f19] hover:bg-[#212c42] border border-[#212c42] rounded-lg text-[10px] font-bold font-mono text-gray-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
               </svg>
               <span id="copy-text">不足兵士数をコピー</span>
             </button>
@@ -398,8 +411,8 @@
 
           <!-- High-Precision Tactical Signal -->
           <div class="mt-5 p-3.5 bg-emerald-950/20 border border-emerald-900/40 rounded-xl flex gap-2.5">
-            <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div class="text-[11px] leading-relaxed text-gray-300">
               <strong class="text-emerald-400 font-bold">高精度分析シグナル:</strong><br />
@@ -567,7 +580,7 @@
         toggleSvg.innerHTML = `
           <rect x="5" y="15" width="40" height="20" rx="10" fill="#1e293b"/>
           <rect x="6" y="16" width="38" height="18" rx="9" fill="#0369a1"/>
-          <circle cx="35" cy="25" r="7" fill="#ffffff"/>
+          <circle cx="35" cy="25" r="7" fill="#ffffff" />
         `;
         aftershockStatusDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
         aftershockRateContainer.classList.remove('hidden');
@@ -575,7 +588,7 @@
         // Toggle Inactive styles on switch
         toggleSvg.innerHTML = `
           <rect x="5" y="15" width="40" height="20" rx="10" fill="#1e293b"/>
-          <circle cx="15" cy="25" r="7" fill="#64748b"/>
+          <circle cx="15" cy="25" r="7" fill="#64748b" />
         `;
         aftershockStatusDot.className = "inline-block w-2 h-2 rounded-full bg-gray-600";
         aftershockRateContainer.classList.add('hidden');
@@ -826,8 +839,8 @@
       navigator.clipboard.writeText(valueToCopy).then(() => {
         const originalHTML = copyBtn.innerHTML;
         copyBtn.innerHTML = `
-          <svg class="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          <svg class="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
           <span class="text-emerald-400 text-[9px]">コピー済!</span>
         `;
