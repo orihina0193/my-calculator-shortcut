@@ -181,7 +181,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             <!-- Soldier Tier Select (Shared) -->
-            <div class="space-y-1.5">
+            <div class="space-y-1.5 col-span-1 sm:col-span-2">
               <label for="tier-select" class="block text-xs font-bold tracking-wider text-gray-400 uppercase font-mono">
                 兵士ティア
               </label>
@@ -680,27 +680,32 @@
         }
 
         const otherWK = wkVal - deathWK;
-        const neededWK = 10000 - otherWK;
+        let neededWK = 10000 - otherWK;
         
         let cumulative = 0;
         let targetPt = null;
 
-        for (const [pt, rw] of REWARD_STAGES) {
-          cumulative += rw;
-          if (cumulative >= neededWK) {
-            targetPt = pt;
-            break;
-          }
-        }
-
-        if (!targetPt) {
-          let curPt = 1500000;
-          for (let p = 2000000; p <= 100000000; p += 500000) {
-            cumulative += 200;
-            curPt = p;
+        if (neededWK <= 0) {
+          neededWK = Math.max(0, neededWK);
+          targetPt = 0;
+        } else {
+          for (const [pt, rw] of REWARD_STAGES) {
+            cumulative += rw;
             if (cumulative >= neededWK) {
-              targetPt = curPt;
+              targetPt = pt;
               break;
+            }
+          }
+
+          if (!targetPt) {
+            let curPt = 1500000;
+            for (let p = 2000000; p <= 100000000; p += 500000) {
+              cumulative += 200;
+              curPt = p;
+              if (cumulative >= neededWK) {
+                targetPt = curPt;
+                break;
+              }
             }
           }
         }
